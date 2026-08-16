@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
 <title>Kanji Knight Battle</title>
 <style>
 :root{
@@ -13,7 +13,22 @@
   --cyan:#78dbff;
   --answer-bottom:62px;
 }
+
 *{box-sizing:border-box}
+html,body{
+  overscroll-behavior:none;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+.game{
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+input,button{
+  touch-action:manipulation;
+}
+
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;color:#fff;font-family:"Courier New",monospace}
 button,input{font:inherit}
 .game{position:relative;width:100vw;height:var(--game-h,100dvh);min-height:0;overflow:hidden}
@@ -97,13 +112,78 @@ button,input{font:inherit}
 /* Boss is larger, sits higher, while its HP HUD stays fully outside/above it */
 .oni-wrap.boss-stage .oni-body{
   bottom:28px;
+  z-index:2;
+  isolation:isolate;
 }
 .oni-wrap.boss-stage .oni-hud{
   bottom:362px;
-  z-index:120;
+  z-index:160;
 }
 .oni-wrap.boss-stage .oni-motion{
   overflow:visible;
+}
+
+
+/* FINAL BOSS AURA - always behind boss and below HP HUD */
+.oni-wrap.boss-stage .oni-body::before,
+.oni-wrap.boss-stage .oni-body::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:-1;
+  border-radius:50%;
+}
+.oni-wrap.boss-stage .oni-body::before{
+  width:118%;
+  height:118%;
+  background:
+    radial-gradient(circle,
+      rgba(255,255,255,.18) 0 12%,
+      rgba(255,205,90,.18) 22%,
+      rgba(255,80,60,.16) 42%,
+      rgba(110,40,180,.18) 62%,
+      rgba(0,0,0,0) 76%);
+  filter:blur(14px);
+  animation:bossAuraPulse 1.9s ease-in-out infinite alternate;
+}
+.oni-wrap.boss-stage .oni-body::after{
+  width:136%;
+  height:136%;
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(255,70,50,0),
+      rgba(255,70,50,.20),
+      rgba(120,70,255,.14),
+      rgba(255,215,90,.16),
+      rgba(255,70,50,0)
+    );
+  filter:blur(24px);
+  opacity:.72;
+  animation:bossAuraRotate 5.8s linear infinite;
+}
+.oni-wrap.boss-stage .oni-emoji{
+  filter:
+    drop-shadow(0 18px 0 rgba(0,0,0,.22))
+    drop-shadow(0 0 16px rgba(255,95,55,.35))
+    drop-shadow(0 0 34px rgba(110,75,255,.24));
+}
+@keyframes bossAuraPulse{
+  0%{
+    opacity:.58;
+    transform:translate(-50%,-50%) scale(.90);
+  }
+  100%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.08);
+  }
+}
+@keyframes bossAuraRotate{
+  from{transform:translate(-50%,-50%) rotate(0deg) scale(1)}
+  to{transform:translate(-50%,-50%) rotate(360deg) scale(1)}
 }
 
 /* KNIGHT */
@@ -518,6 +598,18 @@ button,input{font:inherit}
   .knight-hud{bottom:147px;width:138px}
 
   .oni-wrap.boss-stage .oni-body{bottom:22px}
+
+  .oni-wrap.boss-stage .oni-body::before{
+    width:108%;
+    height:108%;
+    filter:blur(10px);
+  }
+  .oni-wrap.boss-stage .oni-body::after{
+    width:122%;
+    height:122%;
+    filter:blur(16px);
+  }
+
   .oni-wrap.boss-stage .oni-hud{bottom:248px;z-index:120}
 
   .actor-hud{padding:5px 6px}
@@ -526,7 +618,7 @@ button,input{font:inherit}
   .kanji-detail{top:63%;min-width:150px;max-width:190px;font-size:10px;padding:5px 7px}
   .result-reading{font-size:13px} .result-meaning{font-size:10px}
   .player-result{right:3%;bottom:315px;min-width:150px;max-width:190px;padding:6px 7px}
-  .combo{top:82px} .combo .num{font-size:68px} .combo .txt{font-size:16px}
+  .combo{top:70px} .combo .num{font-size:46px} .combo .txt{font-size:12px;letter-spacing:2px}
   .projectile{bottom:220px;font-size:43px} .projectile .attack-word{font-size:46px}
   .guard{right:0;bottom:160px;transform:scale(.62)}
   .answer-result{left:8px;right:68px;bottom:var(--answer-bottom);transform:translateY(6px);width:auto;min-height:56px;padding:6px 10px;border-radius:12px;background:rgba(5,8,13,.96);border:3px solid #fff;box-shadow:0 7px 0 rgba(0,0,0,.35)}
@@ -628,6 +720,18 @@ button,input{font:inherit}
   body.keyboard-open .oni-wrap.boss-stage .oni-body{
     bottom:16px;
   }
+
+  body.keyboard-open .oni-wrap.boss-stage .oni-body::before{
+    width:104%;
+    height:104%;
+    filter:blur(7px);
+  }
+  body.keyboard-open .oni-wrap.boss-stage .oni-body::after{
+    width:116%;
+    height:116%;
+    filter:blur(11px);
+  }
+
   body.keyboard-open .oni-wrap.boss-stage .oni-hud{
     bottom:176px;
     z-index:120;
@@ -646,13 +750,14 @@ button,input{font:inherit}
     padding:1px;
   }
   body.keyboard-open .combo{
-    top:53px;
+    top:47px;
   }
   body.keyboard-open .combo .num{
-    font-size:43px;
+    font-size:31px;
   }
   body.keyboard-open .combo .txt{
-    font-size:11px;
+    font-size:9px;
+    letter-spacing:1.5px;
   }
   body.keyboard-open .projectile{
     bottom:142px;
@@ -820,6 +925,7 @@ button,input{font:inherit}
 
   <div class="answer-zone">
     <input id="answerInput"
+      autofocus
       lang="ja-JP"
       inputmode="text"
       enterkeyhint="go"
@@ -1267,7 +1373,6 @@ function doPlayerAttack(){
   }else{
     clearCombo();
     revealAnswerResult(q,"wrong","SALAH");
-    toast(`JAWABAN: ${q.r}`);
     nextQuestion();
     holdResult(monsterTurn,2600);
   }
@@ -1465,6 +1570,7 @@ function restart(){
   $("battleBg").classList.remove("stage-pan");
   hideKanjiDetail();hidePlayerResult();hideAnswerResult();clearCombo();
   showAnswerBar();setMonster();playerTurn();updateUI();ensureMusic();
+  if(isMobileUI()) setTimeout(forceMobileKeyboardFocus,80);
 }
 
 /* Romaji -> Hiragana. Final ん requires nn unless n is followed by another consonant. */
@@ -1576,6 +1682,83 @@ document.addEventListener("keydown",event=>{
 
 $("potionBtn").addEventListener("click",usePotion);
 $("restartBtn").addEventListener("click",restart);
+
+
+
+/* Mobile input bootstrap and zoom lock */
+function forceMobileKeyboardFocus(){
+  if(!isMobileUI()) return;
+
+  input.disabled=false;
+
+  try{
+    input.focus({preventScroll:true});
+    input.setSelectionRange(input.value.length,input.value.length);
+  }catch(e){
+    try{ input.focus(); }catch(_){}
+  }
+}
+
+/*
+  Mobile browsers may block opening the software keyboard without a user gesture.
+  We try immediately on load, then repeat on the first touch/pointer interaction.
+*/
+function bootstrapMobileKeyboard(){
+  if(!isMobileUI()) return;
+
+  setTimeout(forceMobileKeyboardFocus,80);
+  setTimeout(forceMobileKeyboardFocus,320);
+
+  const firstGesture=()=>{
+    forceMobileKeyboardFocus();
+    setTimeout(forceMobileKeyboardFocus,60);
+  };
+
+  document.addEventListener("pointerdown",firstGesture,{once:true,capture:true});
+  document.addEventListener("touchstart",firstGesture,{once:true,capture:true,passive:true});
+}
+
+window.addEventListener("pageshow",()=>{
+  if(isMobileUI()){
+    setTimeout(forceMobileKeyboardFocus,120);
+  }
+},{passive:true});
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && isMobileUI() && phase!=="ended"){
+    setTimeout(forceMobileKeyboardFocus,120);
+  }
+});
+
+/* Block pinch zoom and iOS gesture zoom inside the game. */
+document.addEventListener("gesturestart",event=>{
+  if(isMobileUI()) event.preventDefault();
+},{passive:false});
+
+document.addEventListener("gesturechange",event=>{
+  if(isMobileUI()) event.preventDefault();
+},{passive:false});
+
+document.addEventListener("gestureend",event=>{
+  if(isMobileUI()) event.preventDefault();
+},{passive:false});
+
+document.addEventListener("touchmove",event=>{
+  if(isMobileUI() && event.touches && event.touches.length>1){
+    event.preventDefault();
+  }
+},{passive:false});
+
+let lastTouchEnd=0;
+document.addEventListener("touchend",event=>{
+  if(!isMobileUI()) return;
+
+  const now=Date.now();
+  if(now-lastTouchEnd<=300){
+    event.preventDefault();
+  }
+  lastTouchEnd=now;
+},{passive:false});
 
 
 /* Mobile viewport / software-keyboard adaptation */
@@ -1768,6 +1951,7 @@ setMonster();
 setQuestionDisplay(currentQuestion());
 updateUI();
 playerTurn();
+bootstrapMobileKeyboard();
 </script>
 </body>
 </html>
